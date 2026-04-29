@@ -1,0 +1,66 @@
+{
+  "name": "cmdwallpaper-desktop",
+  "version": "0.2.0",
+  "description": "Desktop experimental version of CMD Wallpaper — Progman embed",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "start:windowed": "electron . -- --windowed",
+    "start:progman": "electron . -- --parent=progman",
+    "start:workerw": "electron . -- --parent=workerw",
+    "build:host": "dotnet publish desktop_host/desktop_host.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o desktop_host/publish",
+    "pack": "electron-builder --dir",
+    "dist:portable": "electron-builder --win portable",
+    "dist:nsis": "electron-builder --win nsis",
+    "dist": "electron-builder --win portable"
+  },
+  "build": {
+    "appId": "com.neoke.cmdwallpaper.desktop",
+    "productName": "CMD Wallpaper Desktop",
+    "copyright": "Copyright © 2026 NeoKe-42",
+    "asar": false,
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "package.json",
+      "app/**/*",
+      "Kill CMD Wallpaper.bat",
+      "!**/*.map",
+      "!**/node_modules/.cache/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "helper",
+        "to": "helper",
+        "filter": ["**/*"]
+      },
+      {
+        "from": "desktop_host/publish",
+        "to": "desktop_host/publish",
+        "filter": ["**/*"]
+      }
+    ],
+    "win": {
+      "target": ["portable", "nsis"],
+      "artifactName": "${productName}-${version}-${arch}.${ext}",
+      "signAndEditExecutable": false
+    },
+    "portable": {
+      "artifactName": "CMD-Wallpaper-Desktop-${version}-portable.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "CMD Wallpaper Desktop"
+    }
+  },
+  "devDependencies": {
+    "electron": "latest",
+    "electron-builder": "^26.8.1"
+  }
+}

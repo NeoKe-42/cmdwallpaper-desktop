@@ -1,0 +1,595 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><style>
+:root {
+  --bg: #282c34; --bg2: #21252b; --fg: #abb2bf; --muted: #5c6370;
+  --red: #e06c75; --green: #98c379; --yellow: #e5c07b;
+  --blue: #61afef; --purple: #c678dd; --cyan: #56b6c2; --white: #dcdfe4;
+  --bar-bg: #3a3f4b;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;
+  font-family:"Cascadia Mono","CaskaydiaCove Nerd Font","JetBrains Mono","Fira Code","Consolas","Microsoft YaHei","SimHei",monospace;
+  font-size:clamp(18px,1.45vw,24px);line-height:1.28;color:var(--fg)}
+body{display:flex;align-items:center;justify-content:center}
+.w{width:min(1280px,96vw);min-width:min(1280px,96vw);max-width:1280px;
+  background:transparent;border:none;box-shadow:none;
+  padding:clamp(24px,3vw,40px);color:var(--fg);overflow:hidden}
+.tb{color:var(--fg);font-size:0.92em;margin-bottom:14px;padding-bottom:10px;
+  border-bottom:1px solid var(--muted);white-space:nowrap;overflow:hidden}
+.tb-line{display:flex;align-items:baseline;gap:12px;white-space:nowrap}
+.tb .l{color:var(--green);font-weight:600}
+.tb .s{color:var(--muted)}
+.time-now{color:var(--white);font-weight:700;font-variant-numeric:tabular-nums}
+.date-now{color:var(--muted);font-weight:500}
+.day-progress{margin-top:5px;color:var(--muted);white-space:nowrap;overflow:hidden;font-size:0.86em}
+.day-label{display:inline-block;width:72px;color:var(--yellow);font-weight:600}
+.bottom-grid{display:flex;gap:20px;align-items:flex-start;margin-top:10px;padding-top:10px;border-top:1px solid var(--muted)}
+.eq-block{display:flex;gap:10px;line-height:1.5;flex:0 0 auto}
+.mini-cal{font-size:0.72em;color:var(--muted);white-space:pre;text-align:left;line-height:1.25;opacity:0.92;margin-left:auto}
+.mini-cal .cal-title{color:var(--yellow)}
+.mini-cal .cal-week{color:var(--muted)}
+.mini-cal .cal-today{color:var(--blue);font-weight:700}
+.main-grid{display:flex;gap:clamp(24px,3vw,48px);margin-bottom:16px;align-items:flex-start}
+.left-panel{flex:0 0 160px;width:160px;min-width:160px;max-width:160px;display:flex;flex-direction:column;align-items:flex-start}
+.ascii-logo{color:var(--blue);font-weight:700;line-height:0.92;letter-spacing:-1px;margin:0 0 12px 0;white-space:pre;font-size:0.78em;width:160px;max-width:160px;overflow:hidden;text-shadow:0 0 8px rgba(97,175,239,.15)}
+.meta-badges{margin-top:10px;display:flex;flex-direction:column;gap:6px;align-items:flex-start;max-width:160px}
+.badge{display:inline-block;padding:2px 8px;border:1px solid var(--muted);border-radius:3px;font-size:0.68em;line-height:1.2;letter-spacing:0.02em;white-space:nowrap;background:rgba(0,0,0,0.12)}
+.badge-blue{color:var(--blue);border-color:rgba(97,175,239,.45)}
+.badge-green{color:var(--green);border-color:rgba(152,195,121,.45)}
+.badge-yellow{color:var(--yellow);border-color:rgba(229,192,123,.45)}
+.sys{flex:1;min-width:0;line-height:1.55}
+.sys .k{color:var(--yellow);white-space:nowrap}
+.sys .v{color:var(--fg)}
+.sys .m{color:var(--muted)}
+.sys .sep{color:var(--muted);margin:2px 0}
+.sys .info-title{color:var(--yellow)}
+.sys .info-sep{color:var(--muted);margin:1px 0 6px 0}
+.sys .info-hint{color:var(--muted);font-size:clamp(14px,1.1vw,18px)}
+.media-row{display:flex;gap:18px;align-items:center;margin:10px 0;padding-top:10px;border-top:1px solid var(--muted)}
+.art-box{width:120px;height:120px;min-width:120px;border:1px solid var(--muted);background:var(--bg2);
+  display:flex;align-items:center;justify-content:center}
+.art-box img{width:100%;height:100%;object-fit:cover}
+.art-ph{color:var(--muted);font-size:14px;text-align:center;line-height:1.5}
+.np-info{flex:1;min-width:0;line-height:1.45}
+.np-prog .time{color:var(--muted)}
+.np-title{color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.np-artist{color:var(--cyan)}
+.np-album{color:var(--muted)}
+.eq-labels{display:none}
+.eq-lb{color:var(--red)}.eq-lm{color:var(--yellow)}.eq-lt{color:var(--green)}
+.eq-bars{display:flex;flex-direction:column;gap:2px;width:530px;min-width:530px;max-width:530px;flex:none}
+.eq-row{display:flex;align-items:center;white-space:nowrap;width:530px;overflow:visible}
+.eq-name{display:inline-block;width:96px;color:var(--yellow);white-space:nowrap;font-variant-numeric:tabular-nums}
+.bar-bracket{color:var(--muted)}
+.bar-empty{color:var(--bar-bg)}
+.bar-pct{display:inline-block;width:64px;min-width:64px;text-align:right;color:var(--fg);margin-left:8px;font-variant-numeric:tabular-nums}
+.fixed-time{display:inline-block;width:58px;text-align:center;font-variant-numeric:tabular-nums}
+#u{color:var(--muted);font-size:clamp(11px,0.85vw,15px);text-align:right;margin-top:10px;padding-top:6px;
+  border-top:1px solid var(--muted);white-space:nowrap;overflow:hidden;text-overflow:clip;width:100%;font-variant-numeric:tabular-nums}
+</style></head><body>
+<div class="w">
+<div class="tb">
+<div class="tb-line">
+<span class="l" id="uprompt">C:\Users\user&gt;</span>
+<span class="time-now" id="td">00:00:00</span>
+<span class="s">|</span>
+<span class="date-now" id="dt">----</span>
+</div>
+<div class="day-progress" id="dayprog"></div>
+<span id="tp" style="display:none">0%</span>
+</div>
+<div class="main-grid">
+<div class="left-panel">
+<pre class="ascii-logo" id="asciiLogo">
+███  ███
+███  ███
+
+███  ███
+███  ███  
+</pre>
+<div id="statusbadges" class="meta-badges"></div>
+</div>
+<div class="sys" id="sys"></div>
+</div>
+
+<div class="media-row">
+<div class="art-box"><img id="art" style="display:none"><div class="art-ph" id="artph"><span style="font-size:32px;color:var(--muted)">&#9835;</span><br>no album<br>art</div></div>
+<div class="np-info">
+<div class="np-prog" id="npprog"><span class="time">--:--</span> no media</div>
+<div class="np-title" id="nptitle"></div>
+<div class="np-artist" id="npartist"></div>
+<div class="np-album" id="npalbum"></div>
+</div>
+</div>
+
+<div class="bottom-grid">
+<div class="eq-block">
+<div class="eq-labels"><span class="eq-lb">Bass</span><span class="eq-lm">Mid</span><span class="eq-lt">Treb</span></div>
+<div class="eq-bars">
+<div class="eq-row" id="eqb"></div>
+<div class="eq-row" id="eqm"></div>
+<div class="eq-row" id="eqt"></div>
+</div>
+</div>
+<div class="mini-cal" id="miniCal"></div>
+</div>
+
+<div id="u"></div>
+</div>
+<script>
+(function(){
+var DEBUG_AUDIO = false;
+var S={
+  npTitle:null,npStart:0,npDur:0,sm:{b:0,m:0,t:0},
+  _artLoaded:false,_artRetries:0,_lastNpState:null
+};
+
+// ── WE native media state ─────────────────────────────────
+var mediaState = {
+  nativeAvailable: false,
+  enabled: false,
+  hasNativeMedia: false,
+  hasNativeArt: false,
+  title: '',
+  artist: '',
+  album: '',
+  albumArtist: '',
+  thumbnail: '',
+  playbackState: 'stopped',
+  position: 0,
+  duration: 0,
+  lastTimelineUpdate: 0,
+  lastThumbAt: 0,
+  source: 'none'
+};
+
+// ── Clock (1s JS local) ──────────────────────────────────
+(function tck(){
+  var n=new Date(),h=n.getHours(),m=n.getMinutes(),se=n.getSeconds();
+  document.getElementById('td').textContent=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(se).padStart(2,'0');
+  document.getElementById('dt').textContent=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0')+' '+['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][n.getDay()];
+  var pct=(h*3600+m*60+se)/86400*100;
+  document.getElementById('tp').textContent=pct.toFixed(1)+'%';
+  var dp=document.getElementById('dayprog');
+  if(dp)dp.innerHTML='<span class="day-label">Today:</span>'+termBar(pct,30,{threshold:true});
+  setTimeout(tck,1000);
+})();
+
+// ── Helpers ──────────────────────────────────────────────
+function termBar(p,w,opts){w=w||24;opts=opts||{};
+  var pct=Math.max(0,Math.min(100,Number(p)||0));
+  var filled=Math.round(pct/100*w);if(filled<0)filled=0;if(filled>w)filled=w;
+  var color=opts.color||'var(--green)';
+  if(opts.threshold){if(pct>=85)color='var(--red)';else if(pct>=60)color='var(--yellow)';else color='var(--green)';}
+  var s='<span class="bar-bracket">[</span>';
+  s+='<span style="color:'+color+'">'+'|'.repeat(filled)+'</span>';
+  s+='<span class="bar-empty">'+'-'.repeat(w-filled)+'</span>';
+  s+='<span class="bar-bracket">]</span>';
+  if(opts.percent!==false){s+='<span class="bar-pct">'+Math.round(pct).toString().padStart(3,' ')+'%</span>';}
+  return s;
+}
+function pg(p,w){return termBar(p,w||24,{threshold:true});}
+function mediaBar(p,w){return termBar(p,w||32,{color:'var(--cyan)',percent:false});}
+function e(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function fm(g){return g>=1000?(g/1024).toFixed(1)+' TB':g.toFixed(1)+' GiB'}
+function ft(s){s=isNaN(s)?0:Math.max(0,Math.round(s));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')}
+
+// ── setAlbumArt helper ───────────────────────────────────
+function setAlbumArt(src, source) {
+  var art = document.getElementById('art');
+  var ph = document.getElementById('artph');
+  if (!art || !ph || !src) return;
+  art.onload = function () {
+    art.style.display = 'block';
+    ph.style.display = 'none';
+    if(source==='native') mediaState.hasNativeArt = true;
+    S._artLoaded = true;
+  };
+  art.onerror = function () {
+    if (source === 'native') {
+      mediaState.hasNativeArt = false;
+      art.style.display = 'none';
+      ph.style.display = '';
+    }
+  };
+  art.src = src;
+}
+
+// ── WE Native Media Listeners ────────────────────────────
+function wallpaperMediaThumbnailListener(event) {
+  if (!event || !event.thumbnail) { mediaState.hasNativeArt = false; return; }
+  mediaState.hasNativeMedia = true;
+  mediaState.thumbnail = event.thumbnail;
+  mediaState.lastThumbAt = Date.now();
+  setAlbumArt(event.thumbnail, 'native');
+}
+if (typeof window.wallpaperRegisterMediaThumbnailListener === 'function') {
+  window.wallpaperRegisterMediaThumbnailListener(wallpaperMediaThumbnailListener);
+}
+
+function wallpaperMediaPropertiesListener(event) {
+  if (!event) return;
+  mediaState.hasNativeMedia = true;
+  mediaState.title = event.title || '';
+  mediaState.artist = event.artist || '';
+  mediaState.album = event.albumTitle || '';
+  if (mediaState.title) document.getElementById('nptitle').textContent = mediaState.title;
+  if (mediaState.artist) document.getElementById('npartist').textContent = mediaState.artist;
+  document.getElementById('npalbum').textContent = mediaState.album ? '[' + mediaState.album + ']' : '';
+}
+if (typeof window.wallpaperRegisterMediaPropertiesListener === 'function') {
+  window.wallpaperRegisterMediaPropertiesListener(wallpaperMediaPropertiesListener);
+}
+
+function wallpaperMediaPlaybackListener(event) {
+  if (!event || !window.wallpaperMediaIntegration) return;
+  mediaState.hasNativeMedia = true;
+  if (event.state === window.wallpaperMediaIntegration.PLAYBACK_PLAYING)
+    mediaState.playbackState = 'playing';
+  else if (event.state === window.wallpaperMediaIntegration.PLAYBACK_PAUSED)
+    mediaState.playbackState = 'paused';
+  else
+    mediaState.playbackState = 'stopped';
+}
+if (typeof window.wallpaperRegisterMediaPlaybackListener === 'function') {
+  window.wallpaperRegisterMediaPlaybackListener(wallpaperMediaPlaybackListener);
+}
+
+function wallpaperMediaTimelineListener(event) {
+  if (!event) return;
+  mediaState.hasNativeMedia = true;
+  mediaState.position = Number(event.position) || 0;
+  mediaState.duration = Number(event.duration) || 0;
+  mediaState.lastTimelineUpdate = Date.now();
+}
+if (typeof window.wallpaperRegisterMediaTimelineListener === 'function') {
+  window.wallpaperRegisterMediaTimelineListener(wallpaperMediaTimelineListener);
+}
+
+// ── EQ: Wallpaper Engine native audio listener ───────────
+var EQ = {
+  registered: false, hasWallpaperAudio: false,
+  frames: 0, lastLen: 0, lastFrameAt: 0, lastNonZeroAt: 0,
+  lastError: '', source: 'none',
+  lastSum: 0, lastMax: 0, lastAvg: 0
+};
+
+var EqNorm = { peakB: 0.003, peakM: 0.003, peakT: 0.003 };
+
+function normalizeBand(value, peakKey) {
+  var minPeak = 0.003;
+  var attack = 0.35;
+  var release = 0.995;
+  value = Math.max(0, Number(value) || 0);
+  if (value > EqNorm[peakKey]) {
+    EqNorm[peakKey] = EqNorm[peakKey] * (1 - attack) + value * attack;
+  } else {
+    EqNorm[peakKey] = Math.max(minPeak, EqNorm[peakKey] * release);
+  }
+  var normalized = value / Math.max(minPeak, EqNorm[peakKey]);
+  return Math.max(0, Math.min(1, normalized));
+}
+
+function wallpaperAudioListener(audioArray) {
+  try {
+    if (!audioArray || audioArray.length < 128) {
+      EQ.lastError = 'invalid audioArray length';
+      return;
+    }
+    var bass = 0, mid = 0, treble = 0;
+    var bc = 0, mc = 0, tc = 0;
+    var sumAll = 0, maxAll = 0;
+    for (var j = 0; j < audioArray.length; j++) {
+      var raw = Math.min(Number(audioArray[j]) || 0, 1);
+      sumAll += raw;
+      if (raw > maxAll) maxAll = raw;
+    }
+    EQ.lastSum = sumAll;
+    EQ.lastMax = maxAll;
+    EQ.lastAvg = sumAll / audioArray.length;
+    for (var i = 0; i < 64; i++) {
+      var left = Math.min(Number(audioArray[i]) || 0, 1);
+      var right = Math.min(Number(audioArray[i + 64]) || 0, 1);
+      var v = (left + right) / 2;
+      if (i < 8)       { bass += v; bc++; }
+      else if (i < 32) { mid  += v; mc++; }
+      else             { treble += v; tc++; }
+    }
+    var avgB = bass / Math.max(1, bc);
+    var avgM = mid  / Math.max(1, mc);
+    var avgT = treble / Math.max(1, tc);
+    var totalEnergy = avgB + avgM + avgT;
+    if (totalEnergy < 0.0005) {
+      S.eqB *= 0.84; if (S.eqB < 0.5) S.eqB = 0;
+      S.eqM *= 0.84; if (S.eqM < 0.5) S.eqM = 0;
+      S.eqT *= 0.84; if (S.eqT < 0.5) S.eqT = 0;
+    } else {
+      var nB = normalizeBand(avgB, 'peakB');
+      var nM = normalizeBand(avgM, 'peakM');
+      var nT = normalizeBand(avgT, 'peakT');
+      var nextB = Math.pow(nB, 0.65) * 100;
+      var nextM = Math.pow(nM, 0.65) * 100;
+      var nextT = Math.pow(nT, 0.65) * 100;
+      S.eqB = (S.eqB || 0) * 0.65 + nextB * 0.35;
+      S.eqM = (S.eqM || 0) * 0.60 + nextM * 0.40;
+      S.eqT = (S.eqT || 0) * 0.55 + nextT * 0.45;
+    }
+    EQ.hasWallpaperAudio = true;
+    EQ.frames++;
+    EQ.lastLen = audioArray.length;
+    EQ.lastFrameAt = Date.now();
+    EQ.source = 'WE-AUDIO';
+  } catch (err) {
+    EQ.lastError = String(err && err.message ? err.message : err);
+  }
+}
+
+try {
+  if (typeof window.wallpaperRegisterAudioListener === 'function') {
+    window.wallpaperRegisterAudioListener(wallpaperAudioListener);
+    EQ.registered = true;
+  } else {
+    EQ.lastError = 'wallpaperRegisterAudioListener unavailable';
+  }
+} catch (err) {
+  EQ.lastError = String(err && err.message ? err.message : err);
+}
+
+// ── JSON fallback: desktop volume or legacy b/m/t ──
+var isDesktopAudio = !EQ.registered;
+setInterval(function () {
+  if (EQ.hasWallpaperAudio && Date.now() - EQ.lastFrameAt < 3000) return;
+  var x = new XMLHttpRequest();
+  x.open('GET', 'data/eq_data.json?cb=' + Date.now(), true);
+  x.timeout = 300;
+  x.onload = function () {
+    try {
+      var d = JSON.parse(x.responseText || '{}');
+      if (isDesktopAudio && typeof d.volume === 'number') {
+        var v = Math.max(0, Math.min(1, d.volume || 0));
+        var pct = Math.pow(v, 0.55) * 100;
+        var dv = S._desktopVol || 0;
+        dv = dv * 0.70 + pct * 0.30;
+        S._desktopVol = dv;
+        S.eqB = dv; S.eqM = dv; S.eqT = dv;
+        EQ.source = 'DESKTOP-VOLUME';
+      } else {
+        S.eqB = Number(d.b) || 0;
+        S.eqM = Number(d.m) || 0;
+        S.eqT = Number(d.t) || 0;
+        EQ.source = 'JSON-FALLBACK';
+      }
+    } catch (e) { EQ.lastError = 'fallback parse failed'; }
+  };
+  x.onerror = function () { EQ.lastError = 'fallback request failed'; };
+  x.ontimeout = function () { EQ.lastError = 'fallback timeout'; };
+  x.send();
+}, 500);
+
+// ── EQ animation (every 100ms) ───────────────────────────
+(function eqAnm(){
+  var sm=S.sm,b=S.eqB||0,m=S.eqM||0,t=S.eqT||0;
+  sm.b+=(b-sm.b)*0.65;sm.m+=(m-sm.m)*0.65;sm.t+=(t-sm.t)*0.65;
+  if (EQ.source === 'DESKTOP-VOLUME') {
+    document.getElementById('eqb').innerHTML='<span class="eq-name">Volume:</span> '+termBar(sm.b,24,{threshold:true});
+    document.getElementById('eqm').style.display='none';
+    document.getElementById('eqt').style.display='none';
+  } else {
+    document.getElementById('eqm').style.display='';
+    document.getElementById('eqt').style.display='';
+    document.getElementById('eqb').innerHTML='<span class="eq-name">Bass:</span> '+termBar(sm.b,24,{threshold:true});
+    document.getElementById('eqm').innerHTML='<span class="eq-name">Mid:</span>  '+termBar(sm.m,24,{threshold:true});
+    document.getElementById('eqt').innerHTML='<span class="eq-name">Treb:</span> '+termBar(sm.t,24,{threshold:true});
+  }
+  setTimeout(eqAnm,80);
+})();
+
+// ── System info (from data/system_info.json, every 5s) ───
+(function loadSys(){
+  var x=new XMLHttpRequest();
+  x.open('GET','data/system_info.json',true);x.overrideMimeType('application/json; charset=utf-8');x.timeout=5000;
+  x.onload=function(){
+    if(x.status!==200&&x.status!==0)return;
+    try{var t=x.responseText;if(t.charCodeAt(0)===0xFEFF)t=t.slice(1);var d=JSON.parse(t);
+      var s=d.system,o=d.os,c=d.cpu,g=d.gpu,m=d.memory,dk=d.disk,nw=d.network,mb=d.motherboard;
+      var lines=[];
+
+      if(s){
+        var uname=s.username||'user';
+        var host=s.hostname||'?';
+        document.getElementById('uprompt').textContent='C:\\Users\\'+uname+'>';
+        lines.push('<div class="info-title">'+e(uname)+'@'+e(host)+'</div>');
+        lines.push('<div class="info-sep">'+'-'.repeat(36)+'</div>');
+      }
+      if(o)lines.push('<span class="k">OS:      </span><span class="v">'+e(o.name||'?')+'</span> <span class="m">'+e(o.version||'')+' ('+e(o.architecture||'')+')</span>');
+      if(s)lines.push('<span class="k">Host:    </span><span class="v">'+e(s.hostname||'?')+'</span>');
+      if(mb)lines.push('<span class="k">Board:   </span><span class="m">'+e(mb)+'</span>');
+      if(o)lines.push('<span class="k">Kernel:  </span><span class="m">Windows NT '+e(o.version||'')+'</span>');
+      lines.push('<div class="sep">'+'-'.repeat(36)+'</div>');
+      if(c)lines.push('<span class="k">CPU:     </span><span class="v">'+e(c.name||'?')+'</span> <span class="m">('+(c.cores||0)+'C/'+(c.threads||0)+'T @ '+(c.frequency_mhz||0)+'MHz)</span>');
+      if(g){var gn='';if(typeof g==='string')gn=g;else if(Array.isArray(g)){gn=g.filter(function(x){return x.indexOf('OrayIdd')<0})[0]||g[0]||''} if(gn)lines.push('<span class="k">GPU:     </span><span class="v">'+e(gn)+'</span>')}
+      if(m)lines.push('<span class="k">Memory:  </span><span class="v">'+fm(m.used_gb||0)+'</span><span class="m"> / '+fm(m.total_gb||0)+' ('+(m.percent||0).toFixed(0)+'%)</span> '+pg(m.percent||0,22));
+      lines.push('<div class="sep">'+'-'.repeat(36)+'</div>');
+      if(dk)Object.keys(dk).forEach(function(l){var dd=dk[l];lines.push('<span class="k">Disk '+e(l.replace(':',''))+': </span><span class="m"> '+fm(dd.used_gb||0)+' / '+fm(dd.total_gb||0)+' ('+(dd.percent||0).toFixed(0)+'%)</span> '+pg(dd.percent||0,22))});
+      if(nw&&nw.ipv4)lines.push('<span class="k">Network: </span><span class="v">'+e(nw.ipv4)+'</span>');
+
+      var html='<div>'+lines.join('</div><div>')+'</div>';
+      if(S._lastSys!==html){S._lastSys=html;document.getElementById('sys').innerHTML=html}
+    }catch(e){}
+  };
+  x.onerror=function(){
+    document.getElementById('sys').innerHTML='<span class="info-hint">System helper not installed<br>Run install.ps1 to enable system stats</span>';
+  };
+  x.send();
+  setTimeout(loadSys,5000);
+})();
+
+// ── Now playing display update (every 500ms) ─────────────
+setInterval(function(){
+  var art=document.getElementById('art');
+  var artph=document.getElementById('artph');
+  var hasMedia = mediaState.hasNativeMedia && mediaState.title;
+  var pos, dur;
+
+  if (hasMedia) {
+    if (mediaState.playbackState === 'playing' && mediaState.duration > 0) {
+      pos = Math.min(mediaState.position + (Date.now() - mediaState.lastTimelineUpdate) / 1000, mediaState.duration);
+    } else {
+      pos = mediaState.position;
+    }
+    dur = mediaState.duration;
+    var pct = dur > 0 ? Math.min(99.9, pos / dur * 100) : 0;
+    var prog = '<span class="time fixed-time" id="postime">' + ft(pos) + '</span> ' + mediaBar(pct, 32) + ' <span class="time fixed-time">/ ' + ft(dur) + '</span>';
+    if (S._lastNpProg !== prog) { S._lastNpProg = prog; document.getElementById('npprog').innerHTML = prog; }
+    S.npTitle = mediaState.title;
+    S.npStart = Date.now() - pos * 1000;
+    S.npDur = dur;
+    S._lastNpState = 'playing';
+    if (!mediaState.hasNativeArt && !S._artLoaded && S._artRetries > 0 && pos >= 1) {
+      S._artRetries--;
+      var ts = encodeURIComponent(mediaState.title || Date.now());
+      art.onload = function () { this.style.display = 'block'; artph.style.display = 'none'; S._artLoaded = true; };
+      art.onerror = function () {
+        if (this.src.indexOf('album_art.png') !== -1) { this.src = 'data/album_art.jpg?cb=' + ts; }
+        else { this.style.display = 'none'; artph.style.display = ''; }
+      };
+      art.src = 'data/album_art.png?cb=' + ts;
+    }
+  } else if (S.npTitle) {
+    // SMTC / JSON fallback
+    pos = Math.max(0, (Date.now() - S.npStart) / 1000);
+    dur = S.npDur || 0;
+    if (dur > 0) {
+      pos = Math.min(pos, dur);
+      var fpct = Math.min(99.9, pos / dur * 100);
+      var fprog = '<span class="time fixed-time" id="postime">' + ft(pos) + '</span> ' + mediaBar(fpct, 32) + ' <span class="time fixed-time">/ ' + ft(dur) + '</span>';
+      if (S._lastNpProg !== fprog) { S._lastNpProg = fprog; document.getElementById('npprog').innerHTML = fprog; }
+    } else {
+      var tprog = '<span class="time">timeline unavailable</span>';
+      if (S._lastNpProg !== tprog) { S._lastNpProg = tprog; document.getElementById('npprog').innerHTML = tprog; }
+    }
+    S._lastNpState = 'json';
+  } else {
+    S.npTitle = null;
+    if (!mediaState.hasNativeArt) {
+      art.style.display = 'none'; artph.style.display = '';
+    }
+    if (S._lastNpState !== 'none') {
+      S._lastNpState = 'none';
+      document.getElementById('npprog').innerHTML = '<span class="time">--:--</span> no media';
+      document.getElementById('nptitle').textContent = '';
+      document.getElementById('npartist').textContent = '';
+      document.getElementById('npalbum').textContent = '';
+      S._artLoaded = false; S._artRetries = 0;
+    }
+  }
+}, 500);
+
+// ── Position ticker (500ms) ──────────────────────────────
+setInterval(function(){
+  if (!S.npTitle) return;
+  var p = document.getElementById('postime');
+  if (p) p.textContent = ft((Date.now() - S.npStart) / 1000);
+}, 500);
+
+// ── smtc_data.json fallback poller ───────────────────────
+(function loadSmtc(){
+  if (mediaState.hasNativeMedia) { setTimeout(loadSmtc, 2000); return; }
+  var x = new XMLHttpRequest();
+  x.open('GET', 'data/smtc_data.json', true);
+  x.overrideMimeType('application/json; charset=utf-8');
+  x.timeout = 2000;
+  x.onload = function () {
+    if (x.status !== 200 && x.status !== 0) return;
+    try {
+      var t = x.responseText;
+      if (t.charCodeAt(0) === 0xFEFF) t = t.slice(1);
+      var d = JSON.parse(t);
+      if (d.status === 'playing' && d.title && d.artist) {
+        var sp = d.pos || 0, sd = d.dur || 0;
+        S.npTitle = d.title;
+        S.npStart = Date.now() - sp * 1000;
+        S.npDur = sd || 0;
+        S._lastNpState = 'playing';
+        document.getElementById('nptitle').textContent = d.title;
+        document.getElementById('npartist').textContent = d.artist;
+        document.getElementById('npalbum').textContent = d.album ? '[' + d.album + ']' : '';
+        if (!mediaState.hasNativeArt && d.has_art && sp >= 1) {
+          S._artRetries = 3;
+          var art = document.getElementById('art');
+          var ts = encodeURIComponent(d.title || Date.now());
+          art.onload = function () { this.style.display = 'block'; document.getElementById('artph').style.display = 'none'; S._artLoaded = true; };
+          art.onerror = function () { if (this.src.indexOf('album_art.png') !== -1) { this.src = 'data/album_art.jpg?cb=' + ts; } };
+          art.src = 'data/album_art.png?cb=' + ts;
+        }
+      } else {
+        S.npTitle = null;
+        if (!mediaState.hasNativeArt) {
+          document.getElementById('art').style.display = 'none';
+          document.getElementById('artph').style.display = '';
+        }
+      }
+    } catch (e) {}
+  };
+  x.send();
+  setTimeout(loadSmtc, 2000);
+})();
+
+// ── Status badges + mini calendar (every 10s) ─────────────
+(function updateBadges(){
+  var badges=[];
+  badges.push('<span class="badge badge-blue">CMDWALLPAPER</span>');
+  badges.push('<span class="badge badge-blue">ONE-DARK-PRO</span>');
+  var helperOn=(typeof EQ!=='undefined'&&EQ.registered);
+  badges.push('<span class="badge '+(helperOn?'badge-green':'badge-yellow')+'">HELPER:'+(helperOn?'ON':'OFF')+'</span>');
+  var audioLive=(typeof EQ!=='undefined'&&EQ.source==='WE-AUDIO');
+  badges.push('<span class="badge '+(audioLive?'badge-green':'badge-yellow')+'">AUDIO:'+(audioLive?'LIVE':'IDLE')+'</span>');
+  document.getElementById('statusbadges').innerHTML=badges.join('');
+})();
+
+(function buildCal(){
+  var n=new Date();
+  var y=n.getFullYear(),m=n.getMonth(),today=n.getDate();
+  var mon=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var first=new Date(y,m,1).getDay();
+  var days=new Date(y,m+1,0).getDate();
+  var lines=[];
+  lines.push('<span class="cal-title">'+mon[m]+' '+y+'</span>');
+  lines.push('<span class="cal-week">Su Mo Tu We Th Fr Sa</span>');
+  var row='';
+  for(var i=0;i<first;i++)row+='   ';
+  for(var d=1;d<=days;d++){
+    if(d===today)row+='<span class="cal-today">'+String(d).padStart(2,' ')+'</span> ';
+    else row+=String(d).padStart(2,' ')+' ';
+    if((first+d)%7===0||d===days){lines.push(row);row='';}
+  }
+  document.getElementById('miniCal').innerHTML=lines.join('\n');
+  setTimeout(buildCal,60000);
+})();
+
+// ── Update time footer (every 1s) ────────────────────────
+setInterval(function(){
+  var n = new Date();
+  var ts = n.getFullYear() + '-' + String(n.getMonth() + 1).padStart(2, '0') + '-' + String(n.getDate()).padStart(2, '0') + ' ' + String(n.getHours()).padStart(2, '0') + ':' + String(n.getMinutes()).padStart(2, '0') + ':' + String(n.getSeconds()).padStart(2, '0');
+  var artState = mediaState.hasNativeArt ? 'ART:NATIVE' : (S._artLoaded ? 'ART:FALLBACK' : 'ART:NONE');
+  var mediaSrc = mediaState.hasNativeMedia ? 'MEDIA:NATIVE' : 'MEDIA:JSON';
+  var eqState;
+  if (!EQ.registered) {
+    eqState = EQ.source === 'DESKTOP-VOLUME' ? 'EQ:DESKTOP-VOLUME' : 'EQ:DESKTOP-NONE';
+  } else if (EQ.frames === 0) {
+    eqState = 'EQ:REGISTERED-NO-FRAMES';
+  } else if (EQ.hasWallpaperAudio && Date.now() - EQ.lastFrameAt < 3000) {
+    var nz = EQ.lastNonZeroAt ? ((Date.now()-EQ.lastNonZeroAt)/1000).toFixed(1)+'s' : '?';
+    if (DEBUG_AUDIO) {
+      eqState = 'EQ:WE-AUDIO frames=' + EQ.frames + ' len=' + EQ.lastLen + ' max=' + EQ.lastMax.toFixed(3) + ' sum=' + EQ.lastSum.toFixed(3) + ' b/m/t=' + Math.round(S.eqB||0) + '/' + Math.round(S.eqM||0) + '/' + Math.round(S.eqT||0) + ' pB=' + EqNorm.peakB.toFixed(4) + ' pM=' + EqNorm.peakM.toFixed(4) + ' pT=' + EqNorm.peakT.toFixed(4) + ' nz=' + nz;
+    } else {
+      eqState = 'EQ:WE-AUDIO';
+    }
+  } else if (EQ.source === 'JSON-FALLBACK') {
+    eqState = 'EQ:JSON-FALLBACK';
+  } else {
+    eqState = 'EQ:STALE';
+  }
+  document.getElementById('u').innerHTML = '<span style="color:var(--muted)">[' + ts + '] [' + artState + '] [' + mediaSrc + '] [' + eqState + ']</span>';
+}, 1000);
+})();</script>
+</body></html>

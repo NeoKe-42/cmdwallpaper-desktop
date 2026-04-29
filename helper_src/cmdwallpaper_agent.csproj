@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0-windows10.0.19041.0</TargetFramework>
+    <AssemblyName>cmdwallpaper_agent</AssemblyName>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SelfContained>false</SelfContained>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Management" Version="9.0.0" />
+    <PackageReference Include="NAudio" Version="2.2.1" />
+  </ItemGroup>
+</Project>

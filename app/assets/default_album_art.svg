@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <rect width="200" height="200" fill="#0c0c0c" rx="4"/>
+  <g transform="translate(100,100)">
+    <circle cx="0" cy="0" r="60" fill="none" stroke="#333" stroke-width="2"/>
+    <text text-anchor="middle" dy="12" fill="#444" font-size="48" font-family="sans-serif">&#9835;</text>
+    <text text-anchor="middle" dy="50" fill="#444" font-size="14" font-family="sans-serif">no album</text>
+    <text text-anchor="middle" dy="70" fill="#444" font-size="14" font-family="sans-serif">art</text>
+  </g>
+</svg>
