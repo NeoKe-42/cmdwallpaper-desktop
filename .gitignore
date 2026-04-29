@@ -26,3 +26,5 @@ helper_src/obj/
 *.log
 .DS_Store
 Thumbs.db
+
+helper_src/publish/
